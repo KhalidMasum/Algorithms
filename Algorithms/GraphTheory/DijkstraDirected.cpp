@@ -28,7 +28,7 @@ public:
         //list<Edge> *listAtTheNode = graph->at(edge.from);
 
         if(graph->at(edge.from)== nullptr){
-            cout<<"New node Added " <<edge.from <<"\n";
+
             graph->at(edge.from)= new list<Edge>();
         }
         graph->at(edge.from)->push_back(edge);
@@ -72,25 +72,24 @@ public:
         distance->at(start)=0;
         pq_push(start,0);
         while (!priorityQueue.empty()){
-            bug<<7;
+
             pq_poll();
-            bug<<8;
-            bug<<9;
+
             visited->at(index) = true;
-            bug<<10;
             if(distance->at(index)<minimumWeight) continue;
 
-
+            cout <<"\nret "<<index;
             list<Edge> *edges = adjacencyList->graph->at(index);
-            if(edges== nullptr) return distance;
+            if(edges== nullptr) {
+                return distance;}
             for(auto edge = edges->begin(); edge!=edges->end();edge++){
-                bug<<" after for";
 
-                if(visited->at(edge->to)){bug<<"before continue"; continue;}
-                bug<<5;
+
+                //  if(visited->at(edge->to)){bug<<"before continue"; continue;}
+                // bug<<5;
 
                 int newDistance = distance->at(index)+edge->cost;
-                bug;
+                //    bug;
                 if(newDistance<distance->at(edge->to)){
                     distance->at(edge->to) = newDistance;
                     pq_push(edge->to,newDistance);
