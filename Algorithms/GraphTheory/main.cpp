@@ -39,55 +39,63 @@ public:
 };
 
 
-class BFSTraverser{
+class DijkstraSearcher{
     UndirectedAdjacencyList *adjacencyList;
     vector<bool> *visited;
-    int count;
-    queue<int> queue;
+    vector<int> *distance;
+
+
+
+    int count = 0;
+    priority_queue<pair<int,int>> priorityQueue;
+
+    void pq_push(int node, int weight){
+        priorityQueue.push(make_pair(weight,node));
+    }
+
+    void pq_poll(){
+        index = priorityQueue.top().second;
+        minimumWeight = priorityQueue.top().first;
+        priorityQueue.pop();
+    }
+
+    int index, minimumWeight;
 public:
-    BFSTraverser(UndirectedAdjacencyList adjacencyList){
+    explicit DijkstraSearcher(UndirectedAdjacencyList adjacencyList){
         this->adjacencyList = &adjacencyList;
         visited = new vector<bool>(adjacencyList.size);
-        count = 0;
+        distance = new vector<int>(adjacencyList.size,INT_MAX);
     }
 
 
 public:
-    int runBFS(int visitAtNode){
-        visited->at(visitAtNode) = true;
-        count++;
-        queue.push(visitAtNode);
-        int currentNode;
-        while (!queue.empty()) {
-            currentNode = queue.front();
-            queue.pop();
-            list<Edge> *edges = adjacencyList->graph->at(currentNode);
-            //  bug << 4;
 
-            if(edges== nullptr)
-                continue;
+    vector<int> * runSearch(int start){
+        distance->at(start)=0;
+        pq_push(start,0);
+        while (!priorityQueue.empty()){
+            pq_poll();
+            if(visited->at(index)){
+                list<Edge> *edges = adjacencyList->graph->at(index);
+                auto edge = edges->begin();
+                while(edge!=edges->end()){
+                    if(visited->at(edge->to)) continue;
+                    int newDistance = distance->at(index)+edge->cost;
+                    if(newDistance<distance->at(edge->to)){
+                        distance->at(edge->to) = newDistance;
+                        pq_push(edge->to,newDistance);
+                    }
 
-            auto it = edges->begin();
-
-
-            // bug << 5;
-
-            while (it != edges->end()) {
-                if (!(visited->at(it->to))) {
-                    //  bug << 0;
-                    queue.push(it->to);
-                    //  bug << 1;
-                    //  bug << "to " << it->to;
-                    count++;
-                    //  bug << "2";
-                    visited->at(it->to) = true;
                 }
-
-                it++;
             }
+
         }
 
-        return count;
+        return distance;
+
+
+
+        return 0;
     }
 
 
@@ -109,9 +117,9 @@ int main(){
     undirectedAdjacencyList->addNode(*new Edge(2, 2, 10));
 
 
-    BFSTraverser *pBfsTraverser = new BFSTraverser(*undirectedAdjacencyList);
-    int count = pBfsTraverser->runBFS(4);
-    cout <<count;
+    DijkstraSearcher *pDijkstraSearcher = new DijkstraSearcher(*undirectedAdjacencyList);
+
+    //cout <<pDijkstraSearcher->distance->at(10)<<pDijkstraSearcher->distance->at(40);
 
 
 
