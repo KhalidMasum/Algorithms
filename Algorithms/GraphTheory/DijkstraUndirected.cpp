@@ -15,20 +15,23 @@ public:
 };
 
 
-class AdjacencyList{
+class UndirectedAdjacencyList {
 public:
     int size;
     vector < list<Edge>* > *graph;
 
-    AdjacencyList(int size){
+    UndirectedAdjacencyList(int size){
         this->size = size;
         graph = new vector<list<Edge>* >(size);
     }
-    void addEdge( Edge edge){
-        //list<Edge> *listAtTheNode = graph->at(edge.from);
+    void addEdge(Edge edge){
+        Edge reverseEdge = *new Edge(edge.to,edge.from,edge.cost);
+        addEdgeToGraph(edge);
+        addEdgeToGraph(reverseEdge);
+    }
 
-        if(graph->at(edge.from)== nullptr){
-
+    void addEdgeToGraph(const Edge &edge) {
+        if(graph->at(edge.from) == nullptr){
             graph->at(edge.from)= new list<Edge>();
         }
         graph->at(edge.from)->push_back(edge);
@@ -36,9 +39,8 @@ public:
 };
 
 
-
 class DijkstraSearcher{
-    AdjacencyList *adjacencyList;
+    UndirectedAdjacencyList *adjacencyList;
     vector<bool> *visited;
     vector<int> *distance;
 
@@ -59,7 +61,7 @@ class DijkstraSearcher{
 
     int index, minimumWeight;
 public:
-    explicit DijkstraSearcher(AdjacencyList adjacencyList){
+    explicit DijkstraSearcher(UndirectedAdjacencyList adjacencyList){
         this->adjacencyList = &adjacencyList;
         visited = new vector<bool>(adjacencyList.size);
         distance = new vector<int>(adjacencyList.size,INT_MAX);
@@ -78,27 +80,31 @@ public:
             visited->at(index) = true;
             if(distance->at(index)<minimumWeight) continue;
 
-            cout <<"\nret "<<index;
-            list<Edge> *edges = adjacencyList->graph->at(index);
-            if(edges== nullptr) {
-            return distance;}
-            for(auto edge = edges->begin(); edge!=edges->end();edge++){
+            if(visited->at(index)){
 
+                list<Edge> *edges = adjacencyList->graph->at(index);
+                //auto edge = edges->begin();
+                // while(edge!=edges->end())
+                //
+                for(auto edge = edges->begin(); edge!=edges->end();edge++){
 
-              //  if(visited->at(edge->to)){bug<<"before continue"; continue;}
-               // bug<<5;
+                    if(visited->at(edge->to)) continue;
 
-                int newDistance = distance->at(index)+edge->cost;
-            //    bug;
-                if(newDistance<distance->at(edge->to)){
-                    distance->at(edge->to) = newDistance;
-                    pq_push(edge->to,newDistance);
+                    int newDistance = distance->at(index)+edge->cost;
+                    if(newDistance<distance->at(edge->to)){
+                        distance->at(edge->to) = newDistance;
+                        pq_push(edge->to,newDistance);
+                    }
                 }
             }
 
         }
 
         return distance;
+
+
+
+        return 0;
     }
 
 
@@ -111,38 +117,22 @@ public:
 
 
 int main(){
+    UndirectedAdjacencyList *undirectedAdjacencyList = new UndirectedAdjacencyList(5);
+    undirectedAdjacencyList->addEdge(*new Edge(0, 1, 4));
+    undirectedAdjacencyList->addEdge(*new Edge(0, 2, 5));
+    undirectedAdjacencyList->addEdge(*new Edge(1, 2, 1));
+    undirectedAdjacencyList->addEdge(*new Edge(1, 3, 6));
+    undirectedAdjacencyList->addEdge(*new Edge(2, 3, 1));
+    undirectedAdjacencyList->addEdge(*new Edge(2, 2, 10));
 
 
-    // Create a fully connected graph
-    //           (0)
-    //           / \
-    //        5 /   \ 4
-    //         /     \
-    // 10     <   1   >
-    //   +->(2)<------(1)      (4)
-    //   +--- \       /
-    //         \     /
-    //        1 \   / 6
-    //           > <
-    //           (3)
-
-
-    AdjacencyList *adjacencyList = new AdjacencyList(5);
-    adjacencyList->addEdge(*new Edge(0, 1, 4));
-    adjacencyList->addEdge(*new Edge(0, 2, 5));
-    adjacencyList->addEdge(*new Edge(1, 2, 1));
-    adjacencyList->addEdge(*new Edge(1, 3, 6));
-    adjacencyList->addEdge(*new Edge(2, 3, 1));
-    adjacencyList->addEdge(*new Edge(2, 2, 10));
-
-
-    DijkstraSearcher *pDijkstraSearcher = new DijkstraSearcher(*adjacencyList);
+    DijkstraSearcher *pDijkstraSearcher = new DijkstraSearcher(*undirectedAdjacencyList);
 
     vector <int> *distance = pDijkstraSearcher->runSearch(0);
     auto  it = distance->begin();
     int i = 0;
     while (it!=distance->end()){
-        bug<<"Answer"<< it[i];
+        bug<<it[i];
         it++;
     }
 
